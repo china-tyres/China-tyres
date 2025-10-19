@@ -1,0 +1,444 @@
+import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Truck,
+  Snowflake,
+  ShieldCheck,
+  BadgeCheck,
+  Warehouse,
+  Globe,
+  MessageSquare,
+  Phone,
+  MapPin,
+  PackageCheck,
+  Ship,
+  ArrowRight,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+
+// ---------- i18n content ----------
+const copy = {
+  en: {
+    brand: "SinoTire Export",
+    nav: {
+      products: "Products",
+      about: "About",
+      process: "Export Process",
+      certs: "Certificates",
+      contact: "Contact",
+      getQuote: "Get Quote",
+    },
+    hero: {
+      title: "Reliable Chinese Tire Supplier for Kazakhstan",
+      subtitle:
+        "EAC certified truck & passenger tires • Factory-direct pricing • Fast land shipping via Khorgos • 15 Years Export Experience",
+      ctaPrimary: "Get Quote",
+      ctaSecondary: "WhatsApp",
+      trust: [
+        "Factory Direct Price",
+        "EAC Certified",
+        "Khorgos Fast Route",
+        "10+ Years Export",
+      ],
+    },
+    products: {
+      title: "Product Lines",
+      hint: "Popular sizes for Kazakhstan roads and climate",
+      cards: [
+        {
+          title: "Truck Tires",
+          desc: "11R22.5 / 12R22.5 • Long haul & regional • Extra mileage compound",
+          tags: ["TBR", "Load Index 148/145", "Speed M/N"],
+        },
+        {
+          title: "Passenger Car Tires",
+          desc: "185/65R15 • 195/65R15 • 205/55R16 • Quiet, fuel-saving patterns",
+          tags: ["PCR", "Wet Grip A/B", "Low Noise"],
+        },
+        {
+          title: "Winter & Snow",
+          desc: "Studdable options • Soft compound • Tested in -30°C conditions",
+          tags: ["Winter", "3PMSF", "Studdable"],
+        },
+        {
+          title: "All-Terrain / Off-Road",
+          desc: "SUV & pickup sizes • Reinforced sidewall • Gravel & mud traction",
+          tags: ["AT/MT", "Reinforced", "Cut-Resistant"],
+        },
+      ],
+    },
+    about: {
+      title: "About Us",
+      body:
+        "We are a professional tire exporter based in China, supplying high-quality truck and passenger car tires to Kazakhstan and Central Asia. Our facility covers 50,000 m² with an annual capacity of 2 million tires. Products comply with EAC, ISO, and DOT standards.",
+      stats: [
+        { label: "Annual Capacity", value: "2,000,000+" },
+        { label: "Factory Area", value: "50,000 m²" },
+        { label: "Export Markets", value: "KZ • RU • KG • UZ" },
+      ],
+    },
+    process: {
+      title: "Export Process",
+      steps: [
+        { title: "Inquiry", desc: "Send sizes, quantity, target port/city" },
+        { title: "Quotation", desc: "FOB/CIF/DDP options with lead time" },
+        { title: "Contract", desc: "30% deposit, production schedule" },
+        { title: "Production", desc: "QC + packing • palletized or bulk" },
+        { title: "Delivery", desc: "Land shipping via Khorgos to Almaty/Nur-Sultan" },
+      ],
+    },
+    certs: {
+      title: "Certificates & Quality",
+      items: [
+        { title: "EAC Certificate", desc: "Compliant with Eurasian standards" },
+        { title: "ISO 9001", desc: "Quality management system" },
+        { title: "SGS Reports", desc: "Pattern, endurance, and rolling tests" },
+        { title: "Factory Audit", desc: "Social & environmental compliance" },
+      ],
+    },
+    contact: {
+      title: "Contact Us",
+      subtitle: "Request a fast quote — English / Russian support",
+      fields: {
+        name: "Name / Company",
+        email: "Email",
+        phone: "Phone / WhatsApp",
+        need: "Tire Type & Quantity",
+        message: "Message",
+      },
+      submit: "Send Inquiry",
+      or: "or contact via",
+      addressTitle: "Address",
+      address: "Qingdao, China",
+    },
+    footer: {
+      rights: "© "+new Date().getFullYear()+" SinoTire Export. All rights reserved.",
+    },
+  },
+  ru: {
+    brand: "SinoTire Export",
+    nav: {
+      products: "Продукция",
+      about: "О нас",
+      process: "Процесс поставки",
+      certs: "Сертификаты",
+      contact: "Контакты",
+      getQuote: "Запросить цену",
+    },
+    hero: {
+      title: "Надежный поставщик шин из Китая для Казахстана",
+      subtitle:
+        "Сертификат EAC • Грузовые и легковые шины • Заводские цены • Быстрая доставка через Хоргос • 15 лет опыта экспорта",
+      ctaPrimary: "Запросить цену",
+      ctaSecondary: "WhatsApp",
+      trust: [
+        "Заводские цены",
+        "Сертификат EAC",
+        "Маршрут через Хоргос",
+        "10+ лет экспорта",
+      ],
+    },
+    products: {
+      title: "Линейки продукции",
+      hint: "Популярные размеры для дорог и климата Казахстана",
+      cards: [
+        {
+          title: "Грузовые шины",
+          desc: "11R22.5 / 12R22.5 • Дальние и региональные • Износостойкая смесь",
+          tags: ["TBR", "Индекс 148/145", "Скорость M/N"],
+        },
+        {
+          title: "Легковые шины",
+          desc: "185/65R15 • 195/65R15 • 205/55R16 • Тихий и экономичный рисунок",
+          tags: ["PCR", "Сцепление A/B", "Низкий шум"],
+        },
+        {
+          title: "Зимние / Снежные",
+          desc: "Возможность шипов • Мягкая смесь • Тесты при -30°C",
+          tags: ["Зима", "3PMSF", "Под шипы"],
+        },
+        {
+          title: "Внедорожные",
+          desc: "Для SUV и пикапов • Усиленный боковин • Гравий и грязь",
+          tags: ["AT/MT", "Усиленные", "Защита от порезов"],
+        },
+      ],
+    },
+    about: {
+      title: "О нас",
+      body:
+        "Мы — профессиональный экспортер шин из Китая. Поставляем высококачественные грузовые и легковые шины в Казахстан и Центральную Азию. Завод 50 000 м², мощность 2 млн шин в год. Соответствие стандартам EAC, ISO и DOT.",
+      stats: [
+        { label: "Годовая мощность", value: "2 000 000+" },
+        { label: "Площадь завода", value: "50 000 м²" },
+        { label: "Рынки", value: "KZ • RU • KG • UZ" },
+      ],
+    },
+    process: {
+      title: "Процесс поставки",
+      steps: [
+        { title: "Запрос", desc: "Отправьте размеры, количество, город назначения" },
+        { title: "Коммерческое предложение", desc: "FOB/CIF/DDP и срок" },
+        { title: "Контракт", desc: "30% предоплата, график производства" },
+        { title: "Производство", desc: "QC + упаковка • паллеты или навалом" },
+        { title: "Доставка", desc: "Автодоставка через Хоргос до Алматы/Астаны" },
+      ],
+    },
+    certs: {
+      title: "Сертификаты и качество",
+      items: [
+        { title: "Сертификат EAC", desc: "Соответствие стандартам ЕАЭС" },
+        { title: "ISO 9001", desc: "Система менеджмента качества" },
+        { title: "Отчеты SGS", desc: "Тесты на износ и сопротивление качению" },
+        { title: "Аудит завода", desc: "Соц. и экологическая ответственность" },
+      ],
+    },
+    contact: {
+      title: "Контакты",
+      subtitle: "Быстрый расчет — поддержка на английском и русском",
+      fields: {
+        name: "Имя / Компания",
+        email: "Email",
+        phone: "Телефон / WhatsApp",
+        need: "Тип шин и количество",
+        message: "Сообщение",
+      },
+      submit: "Отправить запрос",
+      or: "или свяжитесь через",
+      addressTitle: "Адрес",
+      address: "Циндао, Китай",
+    },
+    footer: {
+      rights: "© "+new Date().getFullYear()+" SinoTire Export. Все права защищены.",
+    },
+  },
+};
+
+function FlagToggle({ lang, setLang }: { lang: "en" | "ru"; setLang: (l: "en" | "ru") => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant={lang === "en" ? "default" : "secondary"} size="sm" onClick={() => setLang("en")}>
+        🇬🇧 EN
+      </Button>
+      <Button variant={lang === "ru" ? "default" : "secondary"} size="sm" onClick={() => setLang("ru")}>
+        🇷🇺 RU
+      </Button>
+    </div>
+  );
+}
+
+const Feature = ({ icon: Icon, text }: any) => (
+  <div className="flex items-center gap-2 text-sm">
+    <Icon className="h-4 w-4" /> <span>{text}</span>
+  </div>
+);
+
+const Section = ({ id, children, className = "" }: any) => (
+  <section id={id} className={`max-w-6xl mx-auto px-4 md:px-6 ${className}`}>{children}</section>
+);
+
+export default function ExportLanding() {
+  const [lang, setLang] = useState<"en" | "ru">("en");
+  const t = useMemo(() => copy[lang], [lang]);
+
+  const whatsApp = "https://wa.me/8613280878192"; // WhatsApp direct chat
+
+  return (
+    <div className="min-h-screen bg-white text-gray-900">
+      {/* Header */}
+      <header className="sticky top-0 z-40 backdrop-blur bg-white/70 border-b">
+        <Section id="top" className="py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Truck className="h-6 w-6" />
+            <span className="font-semibold text-lg">{t.brand}</span>
+            <Badge variant="secondary" className="hidden md:inline">EAC</Badge>
+          </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <a href="#products" className="hover:text-black/80">{t.nav.products}</a>
+            <a href="#about" className="hover:text-black/80">{t.nav.about}</a>
+            <a href="#process" className="hover:text-black/80">{t.nav.process}</a>
+            <a href="#certs" className="hover:text-black/80">{t.nav.certs}</a>
+            <a href="#contact" className="hover:text-black/80">{t.nav.contact}</a>
+          </nav>
+          <div className="flex items-center gap-3">
+            <FlagToggle lang={lang} setLang={setLang} />
+            <a href="#contact"><Button size="sm" className="rounded-2xl">{t.nav.getQuote}</Button></a>
+          </div>
+        </Section>
+      </header>
+
+      {/* Hero */}
+      <Section id="hero" className="py-14 md:py-20">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <motion.h1 initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{duration:0.4}}
+              className="text-3xl md:text-5xl font-extrabold leading-tight">
+              {t.hero.title}
+            </motion.h1>
+            <p className="mt-4 text-gray-600 md:text-lg">{t.hero.subtitle}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a href="#contact"><Button size="lg" className="rounded-2xl">
+                {t.hero.ctaPrimary} <ArrowRight className="ml-2 h-4 w-4" />
+              </Button></a>
+              <a href={whatsApp} target="_blank" rel="noreferrer"><Button variant="secondary" size="lg" className="rounded-2xl">{t.hero.ctaSecondary}</Button></a>
+            </div>
+            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 text-gray-700">
+              <Feature icon={ShieldCheck} text={t.hero.trust[0]} />
+              <Feature icon={BadgeCheck} text={t.hero.trust[1]} />
+              <Feature icon={Ship} text={t.hero.trust[2]} />
+              <Feature icon={Warehouse} text={t.hero.trust[3]} />
+            </div>
+          </div>
+          <motion.div initial={{opacity:0, scale:0.98}} animate={{opacity:1, scale:1}} transition={{duration:0.5}} className="relative">
+            <div className="aspect-[4/3] w-full rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-inner grid place-items-center">
+              <div className="grid grid-cols-3 gap-4 p-6 w-full max-w-lg">
+                <div className="rounded-2xl bg-white shadow p-4 text-center">
+                  <Truck className="mx-auto" />
+                  <div className="mt-2 text-sm font-medium">TBR 11R22.5</div>
+                </div>
+                <div className="rounded-2xl bg-white shadow p-4 text-center">
+                  <Snowflake className="mx-auto" />
+                  <div className="mt-2 text-sm font-medium">3PMSF</div>
+                </div>
+                <div className="rounded-2xl bg-white shadow p-4 text-center">
+                  <Globe className="mx-auto" />
+                  <div className="mt-2 text-sm font-medium">EAC</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </Section>
+
+      {/* Products */}
+      <Section id="products" className="py-14 md:py-20">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl md:text-4xl font-bold">{t.products.title}</h2>
+            <p className="text-gray-600 mt-2">{t.products.hint}</p>
+          </div>
+          <a href="#contact"><Button variant="outline" className="rounded-2xl">{t.nav.getQuote}</Button></a>
+        </div>
+        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {t.products.cards.map((c, i) => (
+            <Card key={i} className="rounded-2xl shadow-sm hover:shadow-md transition">
+              <CardHeader>
+                <CardTitle>{c.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-700">
+                <p>{c.desc}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {c.tags.map((tag: string, k: number) => (
+                    <Badge key={k} variant="secondary" className="rounded-2xl">{tag}</Badge>
+                  ))}
+                </div>
+                <a href="#contact"><Button className="mt-4 w-full rounded-2xl" variant="default">{t.nav.getQuote}</Button></a>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </Section>
+
+      {/* About */}
+      <Section id="about" className="py-14 md:py-20">
+        <div className="grid md:grid-cols-3 gap-8 items-start">
+          <div className="md:col-span-2">
+            <h2 className="text-2xl md:text-4xl font-bold">{t.about.title}</h2>
+            <p className="mt-4 text-gray-700 leading-relaxed">{t.about.body}</p>
+            $1
+            <div className=\"mt-6 rounded-2xl border bg-white p-5 text-sm leading-relaxed\">
+              {lang === 'en' ? (
+                <div>
+                  <strong>Bro, contact me to get better tyre prices in China! 🛞🍻😄<\/strong><br \/>
+                  I’ve been exporting <strong>TBR, OTR, PCR, AGR, BIS, PORT and military tyres<\/strong> from China for <strong>15 years<\/strong>, working directly with first‑tier factories. Factory‑direct pricing, EAC quality, fast delivery to Kazakhstan. <a href={whatsApp} target=\"_blank\" rel=\"noreferrer\" className=\"underline\">WhatsApp me now<\/a>.
+                <\/div>
+              ) : (
+                <div>
+                  <strong>Друзья, обращайтесь за лучшими ценами на шины из Китая! 🛞🍻😄<\/strong><br \/>
+                  Экспортируем <strong>TBR, OTR, PCR, AGR, BIS, PORT<\/strong> и военные шины уже <strong>15 лет<\/strong> напрямую с топ‑заводов. Заводские цены, сертификат EAC, быстрая доставка в Казахстан. <a href={whatsApp} target=\"_blank\" rel=\"noreferrer\" className=\"underline\">Написать в WhatsApp<\/a>.
+                <\/div>
+              )}
+            <\/div>
+            <h3 className="font-semibold mb-3 flex items-center gap-2"><ShieldCheck className="h-5 w-5"/>QC Highlights</h3>
+            <ul className="space-y-2 text-sm text-gray-700 list-disc pl-5">
+              <li>100% uniformity & balance checks</li>
+              <li>X-ray inspection for TBR</li>
+              <li>Random sample endurance tests</li>
+              <li>Custom labeling & palletizing</li>
+            </ul>
+          </div>
+        </div>
+      </Section>
+
+      {/* Process */}
+      <Section id="process" className="py-14 md:py-20">
+        <h2 className="text-2xl md:text-4xl font-bold">{t.process.title}</h2>
+        <div className="mt-8 grid md:grid-cols-5 gap-4">
+          {t.process.steps.map((s: any, i: number) => (
+            <div key={i} className="rounded-2xl bg-white border shadow-sm p-4">
+              <div className="text-3xl font-black text-gray-300">{String(i+1).padStart(2,'0')}</div>
+              <div className="mt-2 font-semibold">{s.title}</div>
+              <div className="text-sm text-gray-600">{s.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 text-sm text-gray-600 flex items-center gap-2">
+          <MapPin className="h-4 w-4"/> China → Khorgos → Almaty / Astana
+        </div>
+      </Section>
+
+      {/* Certificates */}
+      <Section id="certs" className="py-14 md:py-20">
+        <h2 className="text-2xl md:text-4xl font-bold">{t.certs.title}</h2>
+        <div className="mt-8 grid md:grid-cols-4 gap-5">
+          {t.certs.items.map((c: any, i: number) => (
+            <Card key={i} className="rounded-2xl border shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><BadgeCheck className="h-5 w-5"/>{c.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-700">{c.desc}</CardContent>
+            </Card>
+          ))}
+        </div>
+      </Section>
+
+      {/* Contact */}
+      <Section id="contact" className="py-14 md:py-20">
+        <div className="grid md:grid-cols-2 gap-8">
+          <div>
+            <h2 className="text-2xl md:text-4xl font-bold">{t.contact.title}</h2>
+            <p className="text-gray-600 mt-2">{t.contact.subtitle}</p>
+            <div className="mt-6 space-y-3 text-sm text-gray-700">
+              <div className=\"flex items-center gap-2\"><Phone className=\"h-4 w-4\"/> WhatsApp / WeChat: +86 132 8087 8192</div>
+              <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {t.contact.addressTitle}: {t.contact.address}</div>
+            </div>
+            <\/div>
+
+          <div className=\"rounded-2xl border p-6 bg-white shadow-sm\">
+            <a href={whatsApp} target=\"_blank\" rel=\"noreferrer\">
+              <Button className=\"w-full rounded-2xl text-base\">Contact Now / Связаться сейчас</Button>
+            </a>
+            <p className=\"text-sm text-gray-600 mt-3\">Or add on WeChat: +86 13280878192</p>
+          <\/div>
+        </div>
+      </Section>
+
+      {/* Footer */}
+      <footer className="border-t py-8 mt-10">
+        <Section id="footer" className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-gray-600">{t.footer.rights}</div>
+          <div className="text-xs text-gray-500">China → Khorgos → Almaty / Astana</div>
+        </Section>
+      </footer>
+    </div>
+  );
+}
